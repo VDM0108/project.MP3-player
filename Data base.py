@@ -10,35 +10,56 @@ from pathlib import Path
 
 
 
+def create_dir():
+    'Create dir Music'
+    parent_path = os.getcwd()
+    dir_name = 'Music'
+    path = os.path.join(parent_path, dir_name)
+    os.mkdir(path)
 
+#create_dir()
 
-def create_db():
+def create_db(db_name):
+    'Create (name).xlsx'
     all_music = pd.DataFrame({'Name':  [], 'Author': [],  'Path': []})
-    print(all_music)
-    all_music.to_excel('./all_music.xlsx', index = False)
-    all_music = pd.read_excel('./all_music.xlsx')
-    print(1, all_music)
+    #print(all_music)
+    all_music.to_excel('./' + db_name + '.xlsx', index = False)
+    #all_music = pd.read_excel('./all_music.xlsx')
+    #print(1, all_music)
 
 #create_db()
 
 
-def add_track(name, author, path):
-    all_music = pd.read_excel('./all_music.xlsx')
-    print(all_music)
-    all_music.loc[ len(all_music.index )] = [name, author, path]
+def delete_track(db_name, path):
+    df = pd.read_excel('./' + db_name + '.xlsx')
+    ind = df.index[df['Path'] == path].tolist()[0]
+    new_df = df.iloc[:ind]
+    new_df[ind:] = df[ind + 1:]
+    df.to_excel('./' + db_name + '.xlsx', index=False)
+
+
+def add_track(db_name, name, author, path):
+    'Adds track to data base'
+    all_music = pd.read_excel('./' + db_name + '.xlsx')
+    #print(all_music)
+    all_music.iloc[::] = all_music.iloc[::-1]
+    all_music.loc[len(all_music.index)] = [name, author, path]
+    all_music.iloc[::] = all_music.iloc[::-1]
     #new_track = {'Author':  author, 'Name': name, 'Url':  url, 'Path': path}
     #all_music = all_music.append(new_track, ignore_index=True)
-    print(all_music)
-    all_music.to_excel('./all_music.xlsx', index = False)
+    #print(all_music)
+    all_music.to_excel('./' + db_name + '.xlsx', index = False)
 
-def get_data():
-    all_music = pd.read_excel('./all_music.xlsx')
+def get_data(db_name):
+    'Gives the whole data of all_music.xlsx'
+    all_music = pd.read_excel('./' + db_name + '.xlsx')
     music = []
     for i in range(all_music.shape[0]):
         music.append([all_music.loc[i]['Name'], all_music.loc[i]['Author'], all_music.loc[i]['Path']])
     return music
 
 def parcing(inp):
+    'Finds the current track'
     global names
     global artists
     global pathes
@@ -88,6 +109,7 @@ def parcing(inp):
 
 #как-то происходит выбор нужного url для скачивания из urls
 def download(url):
+    'Downloads the chosen track'
     k = urls.index(url)
     r = requests.get(url, allow_redirects = True)
     x = names[k]
